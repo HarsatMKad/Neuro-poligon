@@ -1,0 +1,54 @@
+@use "base" as base
+
+.context_title
+    height: 128px
+    display: flex
+    flex-direction: row
+    justify-content: center
+    align-items: flex-end
+    font-size: 64px
+    background: base.$main_background_color
+    color: base.$white_color
+
+.card_container
+    display: flex
+    justify-content: center
+    background: base.$main_background_color
+    padding: 128px 0px 64px 0px
+
+    img
+        margin-right: 32px
+
+    .card_text
+        color: base.$white_color
+        font-size: 16px
+        max-width: 30%
+        margin-right: 32px
+
+        .card_title
+            font-size: 24px
+
+.attractiove_container
+    display: flex
+    justify-content: center
+    background: base.$main_background_color
+    padding: 16px
+
+    button
+        font-size: 24px
+        padding: 16px 64px 16px 64px
+        border-radius: 16px
+        border: 0px
+        margin: 16px
+
+    .try_button
+        background: #E3E3E3
+        &:hover
+            background: base.$white_color
+
+    .info_button
+        background: #2C2C2C
+        color: #F5F5F5
+        &:hover
+            background: #E3E3E3
+            color: base.$main_background_color
