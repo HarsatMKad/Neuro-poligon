@@ -52,6 +52,7 @@ const MapComponent = () => {
       );
 
       setPolygonPoints(event.feature.getGeometry().getCoordinates());
+      //stopDrawingPolygon(); функция для прекращения рисования после завершения одного полигона
     });
 
     map.addInteraction(draw);
@@ -254,6 +255,32 @@ const MapComponent = () => {
     polygonsSourceRef.current.clear();
   }
 
+  
+  const [loading, setLoading] = useState(false);
+  //функция для загрузки полигона с сервера
+  const handleDownload = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:5000/shapefile');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'geojson.zip';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <button onClick={startDrawingPolygon}>Начать рисовать</button>
@@ -265,6 +292,10 @@ const MapComponent = () => {
       <button onClick={handleSubmit}>to server</button>
       <button onClick={addPolygonFromPoints}>Выделить дома</button>
       <button onClick={removePolygons}>Удалить выделение</button>
+
+      <button onClick={handleDownload} disabled={loading}>
+        Download Shapefile
+      </button>
       <div ref={mapRef} className="mapObject"></div>
     </>
   );
