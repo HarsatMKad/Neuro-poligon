@@ -255,21 +255,20 @@ const MapComponent = () => {
     polygonsSourceRef.current.clear();
   }
 
-  
   const [loading, setLoading] = useState(false);
   //функция для загрузки полигона с сервера
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/shapefile');
+      const response = await fetch("http://localhost:5000/shapefile");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = 'geojson.zip';
+      a.download = "data.zip";
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
