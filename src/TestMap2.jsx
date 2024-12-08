@@ -14,6 +14,8 @@ import ImageLayer from "ol/layer/Image";
 import Static from "ol/source/ImageStatic";
 import { Polygon } from "ol/geom";
 import { Feature } from "ol";
+import { GeoTIFF } from "ol/source";
+import { transformExtent } from "ol/proj";
 
 const MapComponent = () => {
   const mapRef = useRef();
@@ -22,6 +24,7 @@ const MapComponent = () => {
   const drawInteractionRef = useRef(null);
   const polygonsSourceRef = useRef(new VectorSource());
   const [map, setMap] = useState(null);
+  const [baseLayerType, setBaseLayerType] = useState(false);
 
   const polygonStyle = new Style({
     stroke: new Stroke({
@@ -35,8 +38,15 @@ const MapComponent = () => {
 
   function startDrawingPolygon() {
     if (drawInteractionRef.current) {
-      return;
+      //return;
     }
+
+    const vectorLayer = new VectorLayer({
+      source: vectorSourceRef.current,
+      style: polygonStyle,
+    });
+
+    map.addLayer(vectorLayer);
 
     vectorSourceRef.current.clear();
 
@@ -81,6 +91,7 @@ const MapComponent = () => {
     }
 
     const imageExtent = [minX, minY, maxX, maxY]; // границы растрового изображения
+    console.log(imageExtent);
     const staticSource = new Static({
       url: "./public/poligon_show_img1.jpg", // Путь к вашему растровому изображению
       imageSize: [maxX - minX, maxY - minY], // Размер изображения
@@ -126,27 +137,53 @@ const MapComponent = () => {
       source: new OSM(),
     });
 
-    const vectorLayer = new VectorLayer({
-      source: vectorSourceRef.current,
-      style: polygonStyle,
-    });
-
     const view = new View({
       center: fromLonLat([37.6173, 55.7558]), // Москва        wgs86 псевдомеркатер, для нашего региона wgs 86 45n
       zoom: 10,
     });
 
+    const imageSource = new Static({
+      url: "./public/poligon_show_img1.jpg", // Укажите путь к вашему изображению
+      projection: "EPSG:3857",
+      imageExtent: [
+        4116146.4965994544, 7492221.751775933, 4175767.3786618924,
+        7504757.424414702,
+      ], // Координаты области покрытия изображения
+    });
+
+    const imageLayer = new ImageLayer({
+      source: imageSource,
+    });
+
     const newMap = new Map({
-      layers: [rasterLayer, vectorLayer],
+      layers: [imageLayer],
       target: mapRef.current,
       view: view,
     });
+
+    setBaseLayerType((currentValue) => {
+      if (currentValue) {
+        newMap.removeLayer(rasterLayer);
+        newMap.removeLayer(imageLayer);
+        newMap.addLayer(imageLayer);
+      } else {
+        newMap.removeLayer(rasterLayer);
+        newMap.removeLayer(imageLayer);
+        newMap.addLayer(rasterLayer);
+      }
+      return currentValue;
+    });
+
     setMap(newMap);
 
     return () => {
       newMap.setTarget(null);
     };
-  }, []);
+  }, [baseLayerType]);
+
+  function changeBaseLayer() {
+    setBaseLayerType(!baseLayerType);
+  }
 
   function gfromS() {
     fetch("http://localhost:5000/api/data")
@@ -234,7 +271,6 @@ const MapComponent = () => {
     });
 
     polygonsSourceRef.current = new VectorSource();
-
     polygonsSourceRef.current.addFeature(feature);
     polygonsSourceRef.current.addFeature(feature2);
     polygonsSourceRef.current.addFeature(feature3);
@@ -295,6 +331,8 @@ const MapComponent = () => {
       <button onClick={handleDownload} disabled={loading}>
         Download Shapefile
       </button>
+
+      <button onClick={changeBaseLayer}>изменить подложку</button>
       <div ref={mapRef} className="mapObject"></div>
     </>
   );

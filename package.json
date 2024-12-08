@@ -25,6 +25,7 @@
     "react-leaflet": "^4.2.1",
     "react-leaflet-draw": "^0.20.4",
     "react-papaparse": "^4.4.0",
+    "react-router-dom": "^7.0.2",
     "shp-write": "^0.3.2",
     "shpjs": "^6.1.0",
     "turf": "^3.0.14"
