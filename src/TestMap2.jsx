@@ -14,8 +14,6 @@ import ImageLayer from "ol/layer/Image";
 import Static from "ol/source/ImageStatic";
 import { Polygon } from "ol/geom";
 import { Feature } from "ol";
-import { GeoTIFF } from "ol/source";
-import { transformExtent } from "ol/proj";
 
 const MapComponent = () => {
   const mapRef = useRef();
@@ -158,6 +156,7 @@ const MapComponent = () => {
     const newMap = new Map({
       layers: [imageLayer],
       target: mapRef.current,
+      controls: [],
       view: view,
     });
 
@@ -185,13 +184,6 @@ const MapComponent = () => {
     setBaseLayerType(!baseLayerType);
   }
 
-  function gfromS() {
-    fetch("http://localhost:5000/api/data")
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.log("error: " + error));
-  }
-
   const handleSubmit = async (event) => {
     event.preventDefault(); // Предотвращаем стандартное поведение формы
 
@@ -214,52 +206,17 @@ const MapComponent = () => {
     }
   };
 
-  function addPolygonFromPoints() {
+  function loadPolygonFromServer() {
+    fetch("http://localhost:5000/api/data")
+      .then((response) => response.json())
+      .then((data) => addPolygonFromArray(data.points))
+      .catch((error) => console.log("error: " + error));
+  }
+
+  function addPolygonFromArray(polygonArray) {
     polygonsSourceRef.current.clear();
+    polygonsSourceRef.current = new VectorSource();
 
-    const points = [
-      [4164072.513334261, 7500324.076774161],
-      [4177219.682199311, 7519891.956015167],
-      [4210851.974644789, 7503840.180075279],
-      [4173244.9567284817, 7486718.2857394],
-      [4164072.513334261, 7500324.076774161],
-    ];
-
-    const points2 = [
-      [4118974.6666460065, 7501088.447057013],
-      [4120350.53315514, 7509955.142338094],
-      [4132733.3317373386, 7507356.283376398],
-      [4118974.6666460065, 7501088.447057013],
-    ];
-
-    const points3 = [
-      [4231948.594451497, 7517751.719223182],
-      [4254115.332654199, 7525701.17016484],
-      [4270167.108594085, 7516528.726770619],
-      [4262676.279822138, 7502311.439509576],
-      [4247236.000108533, 7505674.668754124],
-      [4230114.105772653, 7508579.27582896],
-      [4231948.594451497, 7517751.719223182],
-    ];
-    // Преобразуем координаты в объект Geometry
-    const polygon = new Polygon([points]);
-    const polygon2 = new Polygon([points2]);
-    const polygon3 = new Polygon([points3]);
-
-    // Создаем Feature с геометрией полигона
-    const feature = new Feature({
-      geometry: polygon,
-    });
-
-    const feature2 = new Feature({
-      geometry: polygon2,
-    });
-
-    const feature3 = new Feature({
-      geometry: polygon3,
-    });
-
-    // Определяем стиль для полигона
     const polygonStyle = new Style({
       stroke: new Stroke({
         color: "red",
@@ -270,10 +227,13 @@ const MapComponent = () => {
       }),
     });
 
-    polygonsSourceRef.current = new VectorSource();
-    polygonsSourceRef.current.addFeature(feature);
-    polygonsSourceRef.current.addFeature(feature2);
-    polygonsSourceRef.current.addFeature(feature3);
+    polygonArray.map((pointsPolygon) => {
+      const polygon = new Polygon([pointsPolygon]);
+      const feature = new Feature({
+        geometry: polygon,
+      });
+      polygonsSourceRef.current.addFeature(feature);
+    });
 
     const vectorLayer = new VectorLayer({
       source: polygonsSourceRef.current,
@@ -296,7 +256,7 @@ const MapComponent = () => {
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/shapefile");
+      const response = await fetch("http://localhost:5000/api/data/shapefile");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -323,15 +283,12 @@ const MapComponent = () => {
       <button onClick={clearPolygons}>Очистить полигон</button>
       <button onClick={loadRastrImg}>Добавить растр</button>
       <button onClick={clearRastrImg}>Очистить растры</button>
-      <button onClick={gfromS}>test button</button>
+      <button onClick={loadPolygonFromServer}>Выделить дома</button>
       <button onClick={handleSubmit}>to server</button>
-      <button onClick={addPolygonFromPoints}>Выделить дома</button>
       <button onClick={removePolygons}>Удалить выделение</button>
-
       <button onClick={handleDownload} disabled={loading}>
         Download Shapefile
       </button>
-
       <button onClick={changeBaseLayer}>изменить подложку</button>
       <div ref={mapRef} className="mapObject"></div>
     </>

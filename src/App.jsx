@@ -1,13 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import MainPage from "./MainPage";
-import SecondPage from "./SecondPage";
+import GeneratePolygonPage from "./pages/GeneratePolygonPage";
+import OrtoneyroplanPage from "./pages/OrtoneyroplanPage";
+
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/second" element={<SecondPage />} />
+        <Route path="/" element={<OrtoneyroplanPage />} />
+        <Route path="/second" element={<GeneratePolygonPage/>} />
       </Routes>
     </BrowserRouter>
   );

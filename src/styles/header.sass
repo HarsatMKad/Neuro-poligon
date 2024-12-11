@@ -7,18 +7,28 @@ Header
     display: flex
     justify-content: space-between
     align-items: center
+    padding-left: 32px
     
     img
         cursor: pointer
 
 .navigation_buttons
+    display: flex
+    justify-content: center
+    width: 50%
+
     button
         background: base.$header_background_color
         border: 0
         border-radius: 8px
         padding: 8px
         margin: 8px
-        font-size: 16px
+        font-size: 25px
+
+        a
+            color: inherit
+            text-decoration: inherit
+            
         &:hover
             background-color: base.$button_hover_color
 
@@ -32,7 +42,7 @@ Header
     border-color: #767676
     padding: 8px
     margin: 8px
-    font-size: 16px
+    font-size: 25px
     &:hover
         background-color: base.$button_hover_color
             
@@ -43,7 +53,7 @@ Header
     border-radius: 8px
     padding: 8px
     margin: 8px
-    font-size: 16px
+    font-size: 25px
     &:hover
         background-color: base.$button_hover_color
         color: base.$main_background_color
