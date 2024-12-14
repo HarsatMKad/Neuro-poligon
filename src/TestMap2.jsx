@@ -17,12 +17,18 @@ import { Feature } from "ol";
 
 const MapComponent = () => {
   const mapRef = useRef();
+  const linedBacking = useRef(null);
+  const linedBackingIndex = useRef(null);
   const [polygonPoints, setPolygonPoints] = useState();
   const vectorSourceRef = useRef(new VectorSource());
   const drawInteractionRef = useRef(null);
   const polygonsSourceRef = useRef(new VectorSource());
   const [map, setMap] = useState(null);
-  const [baseLayerType, setBaseLayerType] = useState(false);
+  const [baseLayerType, setBaseLayerType] = useState("1");
+  const [substrateUrl, setSubstrateUrl] = useState(null);
+  const [substrateCount, setSubstrateCount] = useState(0);
+
+  const projection = "EPSG:3857";
 
   const polygonStyle = new Style({
     stroke: new Stroke({
@@ -36,7 +42,7 @@ const MapComponent = () => {
 
   function startDrawingPolygon() {
     if (drawInteractionRef.current) {
-      //return;
+      return;
     }
 
     const vectorLayer = new VectorLayer({
@@ -93,7 +99,7 @@ const MapComponent = () => {
     const staticSource = new Static({
       url: "./public/poligon_show_img1.jpg", // Путь к вашему растровому изображению
       imageSize: [maxX - minX, maxY - minY], // Размер изображения
-      projection: "EPSG:3857",
+      projection: projection,
       imageExtent: imageExtent,
     });
 
@@ -131,6 +137,11 @@ const MapComponent = () => {
   }
 
   useEffect(() => {
+    linedBacking.current.focus();
+    if (substrateCount > 0) {
+      linedBackingIndex.current.focus();
+    }
+
     const rasterLayer = new TileLayer({
       source: new OSM(),
     });
@@ -141,8 +152,8 @@ const MapComponent = () => {
     });
 
     const imageSource = new Static({
-      url: "./public/poligon_show_img1.jpg", // Укажите путь к вашему изображению
-      projection: "EPSG:3857",
+      url: substrateUrl, // Укажите путь к вашему изображению
+      projection: projection,
       imageExtent: [
         4116146.4965994544, 7492221.751775933, 4175767.3786618924,
         7504757.424414702,
@@ -161,14 +172,19 @@ const MapComponent = () => {
     });
 
     setBaseLayerType((currentValue) => {
-      if (currentValue) {
-        newMap.removeLayer(rasterLayer);
-        newMap.removeLayer(imageLayer);
-        newMap.addLayer(imageLayer);
-      } else {
-        newMap.removeLayer(rasterLayer);
-        newMap.removeLayer(imageLayer);
-        newMap.addLayer(rasterLayer);
+      switch (currentValue) {
+        case "1":
+          newMap.removeLayer(rasterLayer);
+          newMap.removeLayer(imageLayer);
+          newMap.addLayer(rasterLayer);
+          break;
+        case "2":
+          if (substrateCount > 0) {
+            newMap.removeLayer(rasterLayer);
+            newMap.removeLayer(imageLayer);
+            newMap.addLayer(imageLayer);
+          }
+          break;
       }
       return currentValue;
     });
@@ -178,36 +194,10 @@ const MapComponent = () => {
     return () => {
       newMap.setTarget(null);
     };
-  }, [baseLayerType]);
-
-  function changeBaseLayer() {
-    setBaseLayerType(!baseLayerType);
-  }
-
-  const handleSubmit = async (event) => {
-    event.preventDefault(); // Предотвращаем стандартное поведение формы
-
-    try {
-      const response = await fetch("http://localhost:5000/api/data", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: "John Doe",
-          email: "johndoe@example.com",
-        }),
-      });
-
-      const result = await response.json();
-      console.log(result); // Логируем результат ответа сервера
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
+  }, [baseLayerType, substrateUrl]);
 
   function loadPolygonFromServer() {
-    fetch("http://localhost:5000/api/data")
+    fetch("http://localhost:3000/api/data")
       .then((response) => response.json())
       .then((data) => addPolygonFromArray(data.points))
       .catch((error) => console.log("error: " + error));
@@ -243,7 +233,6 @@ const MapComponent = () => {
   }
 
   function removePolygons() {
-    //пример, как взять координаты всех полигонов
     polygonsSourceRef.current.getFeatures().forEach((e, i) => {
       console.log(e.getGeometry().getCoordinates());
     });
@@ -252,11 +241,11 @@ const MapComponent = () => {
   }
 
   const [loading, setLoading] = useState(false);
-  //функция для загрузки полигона с сервера
+
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/data/shapefile");
+      const response = await fetch("http://localhost:3000/api/data/shapefile");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -276,6 +265,42 @@ const MapComponent = () => {
     }
   };
 
+  function setnewImg(index) {
+    if (!index) return;
+    fetch("http://localhost:3000/substrates/282483342?index=" + index)
+      .then((response) => response.blob())
+      .then((blob) => URL.createObjectURL(blob))
+      .then((url) => setSubstrateUrl(url))
+      .catch((error) => console.error("Error fetching image:", error));
+  }
+
+  function getImgTest() {
+    setnewImg();
+    setBaseLayerType(linedBacking.current.value);
+    if (linedBacking.current.value == "2") {
+      getCount();
+    } else {
+      setSubstrateCount(0);
+    }
+  }
+
+  function getCount() {
+    fetch(`http://localhost:3000/api/image-ids/282483342`)
+      .then((response) => response.json())
+      .then((data) => {
+        setSubstrateCount(data.length);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  function showBackingImage() {
+    if (linedBackingIndex.current.value) {
+      setnewImg(linedBackingIndex.current.value);
+    }
+  }
+
   return (
     <>
       <button onClick={startDrawingPolygon}>Начать рисовать</button>
@@ -284,12 +309,33 @@ const MapComponent = () => {
       <button onClick={loadRastrImg}>Добавить растр</button>
       <button onClick={clearRastrImg}>Очистить растры</button>
       <button onClick={loadPolygonFromServer}>Выделить дома</button>
-      <button onClick={handleSubmit}>to server</button>
       <button onClick={removePolygons}>Удалить выделение</button>
       <button onClick={handleDownload} disabled={loading}>
         Download Shapefile
       </button>
-      <button onClick={changeBaseLayer}>изменить подложку</button>
+
+      <select ref={linedBacking}>
+        <option value={1}>OSM</option>
+        <option value={2}>Пользовательская подложка</option>
+      </select>
+
+      <button onClick={getCount}> count </button>
+
+      <button onClick={getImgTest}>Выбрать подложку</button>
+
+      {substrateCount > 0 && (
+        <div>
+          <select ref={linedBackingIndex}>
+            {[...Array(substrateCount).keys()].map((index) => (
+              <option key={index} value={index}>
+                {index + 1}
+              </option>
+            ))}
+          </select>
+          <button onClick={showBackingImage}>подтвердить</button>
+        </div>
+      )}
+
       <div ref={mapRef} className="mapObject"></div>
     </>
   );

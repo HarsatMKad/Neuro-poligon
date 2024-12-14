@@ -1,5 +1,6 @@
 import logo from "./assets/logo.svg";
 import { Link } from "react-router-dom";
+import ProfileSection from "./ProfileSection";
 
 export default function HeaderMain({ currentSection }) {
   const getButtonStyle = (index) => {
@@ -26,10 +27,7 @@ export default function HeaderMain({ currentSection }) {
         </button>
       </div>
 
-      <div>
-        <button className="login_button">Войти</button>
-        <button className="regustration_button">Регистрация</button>
-      </div>
+      <ProfileSection />
     </header>
   );
 }

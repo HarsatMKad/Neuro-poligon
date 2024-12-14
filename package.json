@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@turf/turf": "^7.1.0",
+    "@vkid/sdk": "^2.4.0",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "leaflet": "^1.9.4",
@@ -26,6 +27,7 @@
     "react-leaflet-draw": "^0.20.4",
     "react-papaparse": "^4.4.0",
     "react-router-dom": "^7.0.2",
+    "react-vk-auth": "^0.0.2",
     "shp-write": "^0.3.2",
     "shpjs": "^6.1.0",
     "turf": "^3.0.14"
