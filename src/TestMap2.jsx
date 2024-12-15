@@ -15,6 +15,8 @@ import Static from "ol/source/ImageStatic";
 import { Polygon } from "ol/geom";
 import { Feature } from "ol";
 
+import axios from "axios";
+
 const MapComponent = () => {
   const mapRef = useRef();
   const linedBacking = useRef(null);
@@ -26,8 +28,8 @@ const MapComponent = () => {
   const [map, setMap] = useState(null);
   const [baseLayerType, setBaseLayerType] = useState("1");
   const [substrateUrl, setSubstrateUrl] = useState(null);
-  const [substrateCount, setSubstrateCount] = useState(0);
-
+  const [substrateArray, setSubstrateArray] = useState([]);
+  const substrateMaxCount = 5;
   const projection = "EPSG:3857";
 
   const polygonStyle = new Style({
@@ -66,7 +68,7 @@ const MapComponent = () => {
       );
 
       setPolygonPoints(event.feature.getGeometry().getCoordinates());
-      //stopDrawingPolygon(); функция для прекращения рисования после завершения одного полигона
+      stopDrawingPolygon(); //функция для прекращения рисования после завершения одного полигона
     });
 
     map.addInteraction(draw);
@@ -138,7 +140,7 @@ const MapComponent = () => {
 
   useEffect(() => {
     linedBacking.current.focus();
-    if (substrateCount > 0) {
+    if (substrateArray.length > 0) {
       linedBackingIndex.current.focus();
     }
 
@@ -179,7 +181,7 @@ const MapComponent = () => {
           newMap.addLayer(rasterLayer);
           break;
         case "2":
-          if (substrateCount > 0) {
+          if (substrateArray.length > 0) {
             newMap.removeLayer(rasterLayer);
             newMap.removeLayer(imageLayer);
             newMap.addLayer(imageLayer);
@@ -267,28 +269,27 @@ const MapComponent = () => {
 
   function setnewImg(index) {
     if (!index) return;
-    fetch("http://localhost:3000/substrates/282483342?index=" + index)
+    fetch("http://localhost:3000/substrates/" + index)
       .then((response) => response.blob())
       .then((blob) => URL.createObjectURL(blob))
       .then((url) => setSubstrateUrl(url))
       .catch((error) => console.error("Error fetching image:", error));
   }
 
-  function getImgTest() {
-    setnewImg();
+  function changeBackground() {
     setBaseLayerType(linedBacking.current.value);
     if (linedBacking.current.value == "2") {
-      getCount();
+      setUserSubstrateArray();
     } else {
-      setSubstrateCount(0);
+      setSubstrateArray([]);
     }
   }
 
-  function getCount() {
+  function setUserSubstrateArray() {
     fetch(`http://localhost:3000/api/image-ids/282483342`)
       .then((response) => response.json())
       .then((data) => {
-        setSubstrateCount(data.length);
+        setSubstrateArray(data);
       })
       .catch((error) => {
         console.error(error);
@@ -298,6 +299,58 @@ const MapComponent = () => {
   function showBackingImage() {
     if (linedBackingIndex.current.value) {
       setnewImg(linedBackingIndex.current.value);
+    }
+  }
+
+  function uploadUserImage(img) {
+    const formData = new FormData();
+    formData.append("image", img);
+
+    try {
+      const response = axios.post(
+        `http://localhost:3000/api/upload-image/282483342`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      alert(`Файл успешно загружен!`);
+      setUserSubstrateArray();
+    } catch (error) {
+      alert("Произошла ошибка при загрузке файла.");
+      console.log("ошибка при загрузке файла.", error);
+    }
+  }
+
+  function initUploadImg() {
+    setUserSubstrateArray();
+    if (substrateArray.length < substrateMaxCount) {
+      document.getElementById("fileInput").click();
+    } else {
+      alert("Достигнут максимум подложек");
+    }
+  }
+
+  async function deleteUserImage() {
+    try {
+      const index = linedBackingIndex.current.value;
+      const response = await axios.delete(
+        `http://localhost:3000/api/images/${index}`
+      );
+
+      if (response.status === 200) {
+        alert("Изображение удалено.");
+        setUserSubstrateArray();
+      } else {
+        alert("При удалении изображения что-то пошло не так.");
+      }
+    } catch (error) {
+      console.log("Ошибка при удалении изображения:", error);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -319,20 +372,34 @@ const MapComponent = () => {
         <option value={2}>Пользовательская подложка</option>
       </select>
 
-      <button onClick={getCount}> count </button>
+      <button onClick={changeBackground}>Выбрать подложку</button>
 
-      <button onClick={getImgTest}>Выбрать подложку</button>
-
-      {substrateCount > 0 && (
+      {linedBacking.current && linedBacking.current.value == "2" && (
         <div>
           <select ref={linedBackingIndex}>
-            {[...Array(substrateCount).keys()].map((index) => (
-              <option key={index} value={index}>
+            {substrateArray.map((key, index) => (
+              <option key={index} value={key}>
                 {index + 1}
               </option>
             ))}
           </select>
-          <button onClick={showBackingImage}>подтвердить</button>
+
+          <input
+            id="fileInput"
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => uploadUserImage(e.target.files[0])}
+          ></input>
+
+          <button
+            disabled={substrateArray.length == 0}
+            onClick={showBackingImage}
+          >
+            Подтвердить
+          </button>
+          <button onClick={initUploadImg}>Добавить подложку</button>
+          <button onClick={deleteUserImage}>Удалить подложку</button>
         </div>
       )}
 
