@@ -14,17 +14,15 @@ import ImageLayer from "ol/layer/Image";
 import Static from "ol/source/ImageStatic";
 import { Polygon } from "ol/geom";
 import { Feature } from "ol";
-
 import axios from "axios";
 
-const MapComponent = () => {
+const GeneratePolygonMap = () => {
   const mapRef = useRef();
   const linedBacking = useRef(null);
   const linedBackingIndex = useRef(null);
   const [polygonPoints, setPolygonPoints] = useState();
   const vectorSourceRef = useRef(new VectorSource());
   const drawInteractionRef = useRef(null);
-  const polygonsSourceRef = useRef(new VectorSource());
   const [map, setMap] = useState(null);
   const [baseLayerType, setBaseLayerType] = useState("1");
   const [substrateUrl, setSubstrateUrl] = useState(null);
@@ -62,10 +60,7 @@ const MapComponent = () => {
     });
 
     draw.on("drawend", function (event) {
-      console.log(
-        "Полигон нарисован:",
-        event.feature.getGeometry().getCoordinates()
-      );
+      console.log(event.feature.getGeometry().getCoordinates());
 
       setPolygonPoints(event.feature.getGeometry().getCoordinates());
       stopDrawingPolygon(); //функция для прекращения рисования после завершения одного полигона
@@ -136,6 +131,7 @@ const MapComponent = () => {
 
   function clearPolygons() {
     vectorSourceRef.current.clear();
+    setPolygonPoints();
   }
 
   useEffect(() => {
@@ -198,75 +194,6 @@ const MapComponent = () => {
     };
   }, [baseLayerType, substrateUrl]);
 
-  function loadPolygonFromServer() {
-    fetch("http://localhost:3000/api/data")
-      .then((response) => response.json())
-      .then((data) => addPolygonFromArray(data.points))
-      .catch((error) => console.log("error: " + error));
-  }
-
-  function addPolygonFromArray(polygonArray) {
-    polygonsSourceRef.current.clear();
-    polygonsSourceRef.current = new VectorSource();
-
-    const polygonStyle = new Style({
-      stroke: new Stroke({
-        color: "red",
-        width: 2,
-      }),
-      fill: new Fill({
-        color: "rgba(255, 0, 0, 0.1)",
-      }),
-    });
-
-    polygonArray.map((pointsPolygon) => {
-      const polygon = new Polygon([pointsPolygon]);
-      const feature = new Feature({
-        geometry: polygon,
-      });
-      polygonsSourceRef.current.addFeature(feature);
-    });
-
-    const vectorLayer = new VectorLayer({
-      source: polygonsSourceRef.current,
-      style: polygonStyle,
-    });
-    map.addLayer(vectorLayer);
-  }
-
-  function removePolygons() {
-    polygonsSourceRef.current.getFeatures().forEach((e, i) => {
-      console.log(e.getGeometry().getCoordinates());
-    });
-
-    polygonsSourceRef.current.clear();
-  }
-
-  const [loading, setLoading] = useState(false);
-
-  const handleDownload = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("http://localhost:3000/api/data/shapefile");
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "data.zip";
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("Error downloading file:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   function setnewImg(index) {
     if (!index) return;
     fetch("http://localhost:3000/substrates/" + index)
@@ -283,6 +210,7 @@ const MapComponent = () => {
     } else {
       setSubstrateArray([]);
     }
+    clearPolygons();
   }
 
   function setUserSubstrateArray() {
@@ -354,58 +282,72 @@ const MapComponent = () => {
     }
   }
 
+  const handleRightClick = (event) => {
+    event.preventDefault();
+    stopDrawingPolygon();
+  };
+
   return (
     <>
-      <button onClick={startDrawingPolygon}>Начать рисовать</button>
-      <button onClick={stopDrawingPolygon}>Прекратить рисовать</button>
-      <button onClick={clearPolygons}>Очистить полигон</button>
-      <button onClick={loadRastrImg}>Добавить растр</button>
-      <button onClick={clearRastrImg}>Очистить растры</button>
-      <button onClick={loadPolygonFromServer}>Выделить дома</button>
-      <button onClick={removePolygons}>Удалить выделение</button>
-      <button onClick={handleDownload} disabled={loading}>
-        Download Shapefile
-      </button>
-
-      <select ref={linedBacking}>
-        <option value={1}>OSM</option>
-        <option value={2}>Пользовательская подложка</option>
-      </select>
-
-      <button onClick={changeBackground}>Выбрать подложку</button>
-
-      {linedBacking.current && linedBacking.current.value == "2" && (
+      <div className="mapControlButtonSection">
         <div>
-          <select ref={linedBackingIndex}>
-            {substrateArray.map((key, index) => (
-              <option key={index} value={key}>
-                {index + 1}
-              </option>
-            ))}
+          <button onClick={startDrawingPolygon}>Выделить область</button>
+          <button onClick={clearPolygons}>Очистить</button>
+
+          <div style={polygonPoints ? {} : { display: "none" }}>
+            <button onClick={loadRastrImg}>Добавить растр</button>
+            <button onClick={clearRastrImg}>Очистить растры</button>
+            <button>Скачаить</button>
+          </div>
+        </div>
+
+        <div>
+          <label for={linedBacking}>Подложка:</label>
+          <select onChange={changeBackground} ref={linedBacking}>
+            <option value={1}>OSM</option>
+            <option value={2}>Пользовательская подложка</option>
           </select>
 
-          <input
-            id="fileInput"
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={(e) => uploadUserImage(e.target.files[0])}
-          ></input>
+          {linedBacking.current && linedBacking.current.value == "2" && (
+            <div>
+              <select ref={linedBackingIndex}>
+                {substrateArray.map((key, index) => (
+                  <option key={index} value={key}>
+                    {index + 1}
+                  </option>
+                ))}
+              </select>
 
-          <button
-            disabled={substrateArray.length == 0}
-            onClick={showBackingImage}
-          >
-            Подтвердить
-          </button>
-          <button onClick={initUploadImg}>Добавить подложку</button>
-          <button onClick={deleteUserImage}>Удалить подложку</button>
+              <input
+                id="fileInput"
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => uploadUserImage(e.target.files[0])}
+              ></input>
+
+              <button
+                disabled={substrateArray.length == 0}
+                onClick={showBackingImage}
+              >
+                Подтвердить
+              </button>
+              <button onClick={initUploadImg}>Добавить подложку</button>
+              <button style={{ color: "red" }} onClick={deleteUserImage}>
+                Удалить подложку
+              </button>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
-      <div ref={mapRef} className="mapObject"></div>
+      <div
+        ref={mapRef}
+        className="mapObject"
+        onContextMenu={handleRightClick}
+      ></div>
     </>
   );
 };
 
-export default MapComponent;
+export default GeneratePolygonMap;

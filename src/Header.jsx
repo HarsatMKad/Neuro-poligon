@@ -15,15 +15,16 @@ export default function HeaderMain({ currentSection }) {
       <img src={logo} alt="" />
       <div className="navigation_buttons">
         <button className={getButtonStyle(1)}>
-          <Link to="/">Создание ортонейроплана</Link>
+          <Link to="/ortoplane">Создание ортонейроплана</Link>
         </button>
         <button className={getButtonStyle(2)}>
           <Link to="/second">Генерация полигонов</Link>
         </button>
-        <button className={getButtonStyle(3)}>Стоимость</button>
+        <button className={getButtonStyle(3)}>
+          <Link to="/">Стоимость</Link>
+        </button>
         <button className={getButtonStyle(4)}>
-          {" "}
-          <Link to="/second">Контакты</Link>{" "}
+          <Link to="/second">Контакты</Link>
         </button>
       </div>
 

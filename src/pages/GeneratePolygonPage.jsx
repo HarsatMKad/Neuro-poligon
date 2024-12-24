@@ -3,7 +3,6 @@ import CardInfo from "../CardInfo";
 import AttractiveButtons from "../AttractiveButtons";
 import cardimg1 from "../../public/poligon_show_img1.jpg";
 import cardimg2 from "../../public/poligon_show_img2.jpg";
-import MapComponent2 from "../TestMap2";
 
 export default function GeneratePolygonPage() {
   const card1Title = "Исходное изображение";
@@ -53,7 +52,6 @@ export default function GeneratePolygonPage() {
         />
 
         <AttractiveButtons />
-        <MapComponent2 />
       </div>
     </div>
   );
