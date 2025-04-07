@@ -1,12 +1,27 @@
 @use "base" as base
 
+.main_page_container
+    padding: 32px
+    background: base.$main_background_color
+
+    hr
+        height: 1px
+        color: base.$white_color
+        background: base.$white_color
+
+.was_became
+    display: flex
+    justify-content: space-between
+    color: base.$white_color
+    font-size: 128px
+
 .context_title
-    height: 128px
     display: flex
     flex-direction: row
     justify-content: center
     align-items: flex-end
-    font-size: 64px
+    font-size: 128px
+    padding: 64px
     background: base.$main_background_color
     color: base.$white_color
 

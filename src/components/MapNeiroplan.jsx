@@ -1,5 +1,5 @@
 import { Map, View } from "ol"
-import { OSM, Source } from "ol/source"
+import { OSM } from "ol/source"
 import TileLayer from "ol/layer/Tile"
 import { useEffect, useRef } from "react"
 
