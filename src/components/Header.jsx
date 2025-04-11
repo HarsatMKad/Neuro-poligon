@@ -1,34 +1,32 @@
 import logo from "../assets/logo.svg";
 import { Link } from "react-router-dom";
+import { getToken } from "../utils/tokenStorageController";
 import ProfileSection from "./ProfileSection";
+import ProfileLoginSection from "./ProfileLoginSection";
 
-export default function HeaderMain({ currentSection }) {
-  const getButtonStyle = (index) => {
-    if (currentSection === index) {
-      return "current_page_button";
-    }
-    return "";
-  };
+export default function Header() {
+  const token = getToken();
 
   return (
     <header>
-      <img src={logo} alt="" />
-      <div className="navigation_buttons">
-        <button className={getButtonStyle(1)}>
-          <Link to="/ortoplane">Создание ортонейроплана</Link>
-        </button>
-        <button className={getButtonStyle(2)}>
-          <Link to="/second">Генерация полигонов</Link>
-        </button>
-        <button className={getButtonStyle(3)}>
-          <Link to="/">Стоимость</Link>
-        </button>
-        <button className={getButtonStyle(4)}>
-          <Link to="/second">Контакты</Link>
-        </button>
-      </div>
+      <div className="row_box">
+        <div className="logo_background">
+          <Link to="/">
+            <img src={logo} alt="" />
+          </Link>
+        </div>
 
-      <ProfileSection />
+        <nav className="navigation_buttons">
+          <Link to="/">
+            <button>Главная</button>
+          </Link>
+          <Link to="/work">
+            <button>Рабочий стол</button>
+          </Link>
+        </nav>
+
+        {token ? <ProfileSection /> : <ProfileLoginSection />}
+      </div>
     </header>
   );
 }

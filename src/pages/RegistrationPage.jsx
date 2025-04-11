@@ -1,11 +1,13 @@
 import { useState } from "react";
 import axios from "axios";
 import { saveToken } from "../utils/tokenStorageController";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export default function LoginPage() {
+export default function RegistrationPage() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -14,13 +16,19 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!username || !email || !password || !confirmPassword) {
       setError("Пожалуйста, заполните все поля.");
       return;
     }
 
+    if (confirmPassword != password) {
+      setError("Пароли не совпадают.");
+      return;
+    }
+
     try {
-      const response = await axios.post("http://localhost:3000/api/login", {
+      const response = await axios.post("http://localhost:3000/api/register", {
+        username,
         email,
         password,
       });
@@ -29,6 +37,7 @@ export default function LoginPage() {
 
       setSuccessMessage("Регистрация прошла успешно!");
       setError("");
+      setUsername("");
       setEmail("");
       setPassword("");
 
@@ -42,6 +51,14 @@ export default function LoginPage() {
   return (
     <div className="login_page">
       <form className="column_box" onSubmit={handleSubmit}>
+        <input
+          type="username"
+          id="username"
+          placeholder="Имя пользователя"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+
         <input
           type="email"
           id="email"
@@ -58,12 +75,25 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        {successMessage && <div style={{ color: "green" }}>{successMessage}</div>}
+        <input
+          type="password"
+          id="confirmPassword"
+          placeholder="Подтвердить пароль"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
 
-        <button type="submit">Войти</button>
+        {error && <div style={{ color: "red" }}>{error}</div>}
+        {successMessage && (
+          <div style={{ color: "green" }}>{successMessage}</div>
+        )}
+
+        <button type="submit">Зарегистрироваться</button>
       </form>
-      <div className="account_recovery_button">Забыли пароль ?</div>
+      <div className="account_recovery_button">
+        Уже есть аккаунт?
+        <Link to={"/login"}><span> Войти</span></Link>
+      </div>
     </div>
   );
 }

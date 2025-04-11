@@ -1,5 +1,127 @@
-@use "base"
-@use "header"
-@use "map"
-@use "poligon_page"
-@user "fonts"
+$main_background_color: #2C2C2C
+$while_color: #FFFFFF
+$light_while_color: #D9D9D9
+$grey_color: #767676
+$second_color: #FFBD06
+
+
+@font-face 
+    font-family: 'ActayWide-Bold'
+    src: url('../fonts/actaywide-bold.eot')
+    src: url('../fonts/actaywide-bold.eot?#iefix') format('embedded-opentype'), url('../fonts/actaywide-bold.woff2') format('woff2'), url('../fonts/actaywide-bold.woff') format('woff'), url('../fonts/actaywide-bold.ttf') format('truetype'), url('../fonts/actaywide-bold.svg#actaywide-bold') format('svg'); /* Chrome < 4, Legacy iOS */
+
+@font-face 
+    font-family: 'Actay-Regular'
+    src: url('../fonts/actay-regular.eot') 
+    src: url('../fonts/actay-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/actay-regular.woff2') format('woff2'), url('../fonts/actay-regular.woff') format('woff'), url('../fonts/actay-regular.ttf') format('truetype'), url('../fonts/actay-regular.svg#actay-regular') format('svg'); /* Chrome < 4, Legacy iOS */
+
+
+body
+    margin: 0px
+    background: $main_background_color
+
+button
+    cursor: pointer
+    height: 40px
+    font-size: 20px 
+    border: 0px
+    border-radius: 8px
+
+input 
+    height: 60px
+    font-size: 20px 
+    color: $light_while_color
+    border: 2px solid $light_while_color
+    border-radius: 16px
+    background:  #2C2C2C
+    padding: 12px 20px
+    margin: 8px 0
+    box-sizing: border-box
+
+.row_box
+    display: flex
+    flex-direction: row 
+    align-items: center
+    width: 95%
+    justify-content: space-between
+
+header
+    width: 100%
+    display: flex
+    flex-direction: column 
+    align-items: center
+    height: 72px
+    background: $light_while_color
+
+.logo_background
+    display: flex
+    width: hug
+    flex-direction: row
+    padding: 16px
+    background: #333333
+
+.navigation_buttons
+    display: flex
+    flex-direction: row 
+    justify-content: space-between
+    button
+        margin: 16px
+        background: $light_while_color
+        font:
+            family: "Actay-Regular"
+        &:hover
+            background: $while_color
+            font:
+                family: "ActayWide-Bold"
+
+.profile_section
+    .user_profile
+        color: $main_background_color
+        background: $light_while_color
+        border: 2px solid 
+
+    button
+        margin-left: 16px
+        background: $main_background_color
+        color: $while_color
+        &:hover
+            margin-left: 14px
+            color: #2C2C2C
+            border: 1px solid
+            border-color: #767676
+            background: $while_color
+
+.login_page
+    background: $main_background_color
+    height: 100vh
+    width: 100%
+    min-width: 600px
+    display: flex
+    flex-direction: column 
+    align-items: center
+    justify-content: center
+
+    .column_box
+        min-width: 300px
+        width: 20%
+        display: flex
+        flex-direction: column 
+        align-items: center
+
+    button
+        background: $second_color
+        margin-top: 12px
+        font:
+            family: "ActayWide-Bold"
+    
+    button, input
+        height: 60px
+        width: 100%
+    
+    .account_recovery_button
+        padding: 32px
+        font:
+            family: "Actay-Regular"
+        color:  $light_while_color
+        span
+            color: $second_color

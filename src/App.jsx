@@ -1,21 +1,20 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import GeneratePolygonPage from "./pages/GeneratePolygonPage";
-import OrtoneyroplanPage from "./pages/OrtoneyroplanPage";
-import UserProfile from "./components/userProfile";
-import WorkplaceMap from "./pages/WorkplaceMap";
+import React from "react";
+import WorkPage from "./pages/WorkPage";
+import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegistrPage";
+import RegistrationPage from "./pages/RegistrationPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/ortoplane" element={<OrtoneyroplanPage />} />
-        <Route path="/second" element={<GeneratePolygonPage />} />
-        <Route path="/profile" element={<UserProfile />} />
-        <Route path="/" element={<WorkplaceMap />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/work" element={<WorkPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/registr" element={<RegisterPage />} />
+        <Route path="/register" element={<RegistrationPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </BrowserRouter>
   );
