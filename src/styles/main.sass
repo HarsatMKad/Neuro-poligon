@@ -16,18 +16,26 @@ $second_color: #FFBD06
     src: url('../fonts/actay-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/actay-regular.woff2') format('woff2'), url('../fonts/actay-regular.woff') format('woff'), url('../fonts/actay-regular.ttf') format('truetype'), url('../fonts/actay-regular.svg#actay-regular') format('svg'); /* Chrome < 4, Legacy iOS */
 
 
+
+.map_component
+    margin: 10px
+    height: 75vh
+    width: "100%" 
+
+
 body
     margin: 0px
     background: $main_background_color
 
-button
+button, select
     cursor: pointer
     height: 40px
     font-size: 20px 
     border: 0px
     border-radius: 8px
+    margin: 4px
 
-input 
+input
     height: 60px
     font-size: 20px 
     color: $light_while_color
@@ -125,3 +133,4 @@ header
         color:  $light_while_color
         span
             color: $second_color
+

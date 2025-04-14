@@ -1,26 +1,61 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from "react";
+import axios from "axios";
 
-function FileUpload({ onFileLoad }) {
-  const [selectedFile, setSelectedFile] = useState(null);
+export default function FileUpload({ token, downloadKey, onFileLoad, onFileSave }) {
+  const [fileKey, setFileKey] = useState(Date.now());
+  const [geotiffFile, setGeotiffFile] = useState();
+  const fileInputRef = useRef(null);
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
   };
 
-  const handleUpload = () => {
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
     if (selectedFile) {
       onFileLoad(selectedFile);
-    } else {
-      alert('Пожалуйста, выберите файл.');
+      setGeotiffFile(selectedFile);
+      setFileKey(Date.now());
     }
   };
 
+  function saveFile() {
+    const formData = new FormData();
+    formData.append("image", geotiffFile);
+
+    axios
+      .post("http://localhost:3000/api/substrates", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: token,
+        },
+      })
+      .then((response) => {
+        console.log(response);
+        alert("Загрузка завершена.");
+        onFileSave();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("При загрузке файла произошла ошибка.");
+      });
+  }
+
   return (
     <div>
-      <input type="file" accept=".tif,.tiff" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload GeoTIFF</button>
+      <input
+        key={fileKey}
+        type="file"
+        accept=".tif,.tiff"
+        onChange={handleFileChange}
+        style={{ display: "none" }}
+        ref={fileInputRef}
+      />
+      <button onClick={handleButtonClick}>Загрузить Файл</button>
+
+      <button onClick={saveFile} style={downloadKey ? {} : { display: "none" }}>
+        Сохранить файл
+      </button>
     </div>
   );
 }
-
-export default FileUpload;

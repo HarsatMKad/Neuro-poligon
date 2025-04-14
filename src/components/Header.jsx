@@ -25,7 +25,7 @@ export default function Header() {
           </Link>
         </nav>
 
-        {token ? <ProfileSection /> : <ProfileLoginSection />}
+        {token ? <ProfileSection token={token} /> : <ProfileLoginSection />}
       </div>
     </header>
   );
