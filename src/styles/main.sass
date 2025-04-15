@@ -22,9 +22,9 @@ $second_color: #FFBD06
     height: 75vh
     width: "100%" 
 
-
 body
     margin: 0px
+    min-width: 650px
     background: $main_background_color
 
 button, select
@@ -34,6 +34,11 @@ button, select
     border: 0px
     border-radius: 8px
     margin: 4px
+    background: $second_color
+    &:hover
+        color: $second_color
+        background: $main_background_color
+        border: 2px solid $second_color
 
 input
     height: 60px
@@ -79,15 +84,12 @@ header
             family: "Actay-Regular"
         &:hover
             background: $while_color
+            color: $main_background_color
+            border: 0px
             font:
                 family: "ActayWide-Bold"
 
 .profile_section
-    .user_profile
-        color: $main_background_color
-        background: $light_while_color
-        border: 2px solid 
-
     button
         margin-left: 16px
         background: $main_background_color
@@ -98,6 +100,13 @@ header
             border: 1px solid
             border-color: #767676
             background: $while_color
+
+    .user_profile
+        color: $main_background_color
+        background: $light_while_color
+        border: 2px solid 
+        &:hover
+            margin-left: 18px
 
 .login_page
     background: $main_background_color
@@ -130,7 +139,56 @@ header
         padding: 32px
         font:
             family: "Actay-Regular"
+
         color:  $light_while_color
+
         span
             color: $second_color
 
+.load_massage
+    color: $light_while_color
+    font:
+        family: "Actay-Regular"
+
+.profile_info_section
+    display: flex
+    flex-direction: column 
+    margin: 16px
+
+    .row
+        display: flex
+        flex-direction: row
+        justify-content: center
+
+    p
+        font-size: 64px
+        font:
+            family: "ActayWide-Bold"
+        color: $second_color
+
+.column_info
+    display: flex
+    flex-direction: column 
+    margin: 16px
+    width: 100%
+    justify-content: space-between
+
+.subscription_box
+    display: flex
+    flex-direction: column 
+    background: $light_while_color
+    border-radius: 16px
+    padding: 32px
+
+    hr
+        height: 3px;
+        background-color: $second_color
+        border: 0px
+        margin: 1em;
+
+    span
+        padding: 4px
+        color: $main_background_color
+        font-size: 32px
+        font:
+            family: "Actay-Regular"

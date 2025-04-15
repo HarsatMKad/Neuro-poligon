@@ -69,7 +69,7 @@ export default function WorkPage() {
 
   return (
     <div>
-      <Header />
+      <Header token={token}/>
       <FileUpload
         token={token}
         downloadKey={obtainingFileMethod == "download" ? true : false}

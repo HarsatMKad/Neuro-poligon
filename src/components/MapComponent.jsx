@@ -150,7 +150,9 @@ function MapComponent({ geotiffFile }) {
   };
 
   const handleGetCoordinates = async () => {
-    setPolygonsCoords(await polygonsRequest(drawingPolygonCoords));
+    setPolygonsCoords(await polygonsRequest());
+
+    console.log("Выделенный полигон", drawingPolygonCoords);
   };
 
   const convertedPoints = polygonsCoords.map((polygon) => {
@@ -172,8 +174,8 @@ function MapComponent({ geotiffFile }) {
 
   return (
     <div>
-      {loading && <p>Загрузка...</p>}
-    
+      {loading && <p className="load_massage">Загрузка...</p>}
+
       <button
         onClick={() => {
           setMapVisible(!mapVisible);
@@ -182,7 +184,7 @@ function MapComponent({ geotiffFile }) {
         {mapVisible ? "Скрыть карту" : "Показать карту"}
       </button>
 
-      <button onClick={handleGetCoordinates}>Расчитать</button>
+      <button onClick={handleGetCoordinates} style={drawingPolygonCoords.length > 0 ? {} : { display: "none" }}>Расчитать</button>
 
       <button
         onClick={() => {

@@ -27,11 +27,14 @@ export default function RegistrationPage() {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/api/users/register", {
-        username,
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/users/register",
+        {
+          username,
+          email,
+          password,
+        }
+      );
 
       saveToken(response.data.token);
 
@@ -41,7 +44,7 @@ export default function RegistrationPage() {
       setEmail("");
       setPassword("");
 
-      navigate("/profile")
+      navigate("/profile");
     } catch (err) {
       setError(err.response?.data?.message || "Ошибка при регистрации.");
       setSuccessMessage("");
@@ -92,7 +95,9 @@ export default function RegistrationPage() {
       </form>
       <div className="account_recovery_button">
         Уже есть аккаунт?
-        <Link to={"/login"}><span> Войти</span></Link>
+        <Link to={"/login"}>
+          <span> Войти</span>
+        </Link>
       </div>
     </div>
   );

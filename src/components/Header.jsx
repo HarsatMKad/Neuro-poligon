@@ -1,12 +1,9 @@
 import logo from "../assets/logo.svg";
 import { Link } from "react-router-dom";
-import { getToken } from "../utils/tokenStorageController";
 import ProfileSection from "./ProfileSection";
 import ProfileLoginSection from "./ProfileLoginSection";
 
-export default function Header() {
-  const token = getToken();
-
+export default function Header({ token }) {
   return (
     <header>
       <div className="row_box">
