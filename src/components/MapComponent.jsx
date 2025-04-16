@@ -151,7 +151,6 @@ function MapComponent({ geotiffFile }) {
 
   const handleGetCoordinates = async () => {
     setPolygonsCoords(await polygonsRequest());
-
     console.log("Выделенный полигон", drawingPolygonCoords);
   };
 

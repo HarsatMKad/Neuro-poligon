@@ -1,23 +1,24 @@
 import { useEffect, useState } from "react";
 import { delToken } from "../utils/tokenStorageController";
+import SubscriptionCard from "./SubscriptionCard";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
-export default function ProfileInfo({ token }) {
+export default function ProfileInfo({ token, responseMessageHandler }) {
   const [user, setUser] = useState({});
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [subscription, setSubscription] = useState({ });
+  const [subscription, setSubscription] = useState({});
   const navigate = useNavigate();
 
-  useEffect(() => {
+  function setUserDate(){
     if (token) {
       axios
         .get("http://localhost:3000/api/users/info", {
           headers: {
-            "Content-Type": "multipart/form-data",
             Authorization: token,
           },
         })
@@ -34,6 +35,10 @@ export default function ProfileInfo({ token }) {
           }
         });
     }
+  }
+
+  useEffect(() => {
+    setUserDate()
   }, [token]);
 
   function saveEdituser() {
@@ -43,7 +48,10 @@ export default function ProfileInfo({ token }) {
       if (newUsername.length > 3) {
         updateFields.username = newUsername;
       } else {
-        alert("Имя должно иметь длину больше 3 символов.");
+        if(responseMessageHandler){
+          responseMessageHandler({message: "Имя должно иметь длину больше 3 символов", color: "red"})
+        }
+        return;
       }
     }
 
@@ -51,7 +59,9 @@ export default function ProfileInfo({ token }) {
       if (newEmail.length > 3) {
         updateFields.email = newEmail;
       } else {
-        alert("Почта должна иметь длину больше 3 символов.");
+        if(responseMessageHandler){
+          responseMessageHandler({message: "Почта должна иметь длину больше 3 символов", color: "red"})
+        }
         return;
       }
     }
@@ -60,7 +70,9 @@ export default function ProfileInfo({ token }) {
       if (newPassword === confirmPassword && newPassword.length > 5) {
         updateFields.password = newPassword;
       } else {
-        alert("Пароли должны совпадать и иметь длину больше 6 символов.");
+        if(responseMessageHandler){
+          responseMessageHandler({message: "Пароли должны совпадать и иметь длину 6 и больше символов.", color: "red"})
+        }
         return;
       }
     }
@@ -74,30 +86,17 @@ export default function ProfileInfo({ token }) {
           },
         })
         .then(function (response) {
-          alert("Данные были успешно изменены");
-          console.log(response);
+          if(responseMessageHandler){
+            responseMessageHandler({message: response.data.message, color: "green"})
+          }
+          setUserDate()
         })
         .catch(function (error) {
-          if (error.response.status == 400) {
-            delToken();
-            navigate("/login");
+          if(responseMessageHandler){
+            responseMessageHandler({message: error.response.data.message, color: "red"})
           }
-          console.log(error);
-          alert("При изменении данных произошла ошибка");
         });
     }
-  }
-
-  function convertSupDate(numberDate) {
-    if (!numberDate) {
-      return "";
-    }
-    const date = new Date(numberDate);
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    const formattedDate = new Intl.DateTimeFormat("ru-US", options).format(
-      date
-    );
-    return formattedDate;
   }
 
   return (
@@ -144,16 +143,16 @@ export default function ProfileInfo({ token }) {
 
         <div className="column_info">
           <p>Подписка</p>
-          <div className="subscription_box">
-            <span>{subscription.name}</span>
-            <hr />
-            <span>{subscription.description}</span>
-            <span>{"Уровень: " + subscription.lvl}</span>
-            <span>
-              {"Действует до: " + convertSupDate(user.expiration_sup_date)}
-            </span>
-          </div>
-          <button>Изменить</button>
+          <SubscriptionCard
+            name={subscription ? subscription.name : "Отсутствует"}
+            description={subscription && subscription.description}
+            lvl={subscription && subscription.lvl}
+            expiration_sup_date={subscription && user.expiration_sup_date}
+            substrates_max={subscription && subscription.substrates_max}
+          />
+          <Link to="/subscriptions">
+            <button>Изменить</button>
+          </Link>
         </div>
       </div>
     </div>

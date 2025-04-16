@@ -21,6 +21,7 @@ export default function ProfileSection({ token }) {
         })
         .catch(function (error) {
           if (error.response.status == 400) {
+            console.log(error.response)
             handleLogout();
           }
         });

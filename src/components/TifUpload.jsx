@@ -1,7 +1,14 @@
 import React, { useRef, useState } from "react";
 import axios from "axios";
 
-export default function FileUpload({ token, downloadKey, onFileLoad, onFileSave }) {
+export default function FileUpload({
+  token,
+  downloadKey,
+  onFileLoad,
+  onFileSave,
+  errorHandler,
+  messageHandler
+}) {
   const [fileKey, setFileKey] = useState(Date.now());
   const [geotiffFile, setGeotiffFile] = useState();
   const fileInputRef = useRef(null);
@@ -32,12 +39,21 @@ export default function FileUpload({ token, downloadKey, onFileLoad, onFileSave 
       })
       .then((response) => {
         console.log(response);
-        alert("Загрузка завершена.");
+        if(messageHandler){
+          messageHandler("Сохранение завершено")
+        }
+        if(errorHandler){
+          errorHandler()
+        }
         onFileSave();
       })
       .catch((error) => {
-        console.log(error);
-        alert("При загрузке файла произошла ошибка.");
+        if(errorHandler){
+          if(messageHandler){
+            messageHandler()
+          }
+          errorHandler(error.response.data.message)
+        }
       });
   }
 

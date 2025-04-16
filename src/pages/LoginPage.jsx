@@ -1,13 +1,14 @@
 import { useState } from "react";
 import axios from "axios";
 import { saveToken } from "../utils/tokenStorageController";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [error, setError] = useState();
+  const [successMessage, setSuccessMessage] = useState();
 
   const navigate = useNavigate();
 
@@ -64,6 +65,12 @@ export default function LoginPage() {
         <button type="submit">Войти</button>
       </form>
       <div className="account_recovery_button">Забыли пароль ?</div>
+      <div className="account_recovery_button">
+        Нет аккаунта ?
+        <Link to={"/register"}>
+          <span> Создать</span>
+        </Link>
+      </div>
     </div>
   );
 }
