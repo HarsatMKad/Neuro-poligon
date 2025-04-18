@@ -7,8 +7,7 @@ import { useNavigate } from "react-router-dom";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState();
-  const [successMessage, setSuccessMessage] = useState();
+  const [responseMessage, setResponseMessage] = useState({message: "", color: "green"})
 
   const navigate = useNavigate();
 
@@ -16,7 +15,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     if (!email || !password) {
-      setError("Пожалуйста, заполните все поля.");
+      setResponseMessage({message: "Пожалуйста, заполните все поля.", color: "red"})
       return;
     }
 
@@ -28,15 +27,13 @@ export default function LoginPage() {
 
       saveToken(response.data.token);
 
-      setSuccessMessage("Регистрация прошла успешно!");
-      setError("");
+      setResponseMessage({message: "Регистрация прошла успешно!", color: "green"})
       setEmail("");
       setPassword("");
 
       navigate("/profile")
     } catch (err) {
-      setError(err.response?.data?.message || "Ошибка при регистрации.");
-      setSuccessMessage("");
+      setResponseMessage({message: err.response?.data?.message || "Ошибка при регистрации.", color: "red"})
     }
   };
 
@@ -59,8 +56,7 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        {successMessage && <div style={{ color: "green" }}>{successMessage}</div>}
+        {responseMessage && <div style={{ color: responseMessage.color }}>{responseMessage.message}</div>}
 
         <button type="submit">Войти</button>
       </form>

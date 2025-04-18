@@ -1,12 +1,12 @@
 import axios from "axios";
 import { getToken } from "./tokenStorageController";
+import downloadFromBlob from "./downloadFromBlob";
 
-export async function polygonsRequest() {
+export async function polygonsRequest(polygon) {
   const token = getToken();
 
-  const result = await axios.get("http://localhost:3000/api/calculate", {
+  const result = await axios.post("http://localhost:3000/api/calculate", { polygon }, {
     headers: {
-      "Content-Type": "multipart/form-data",
       Authorization: token,
     },
   });
@@ -14,30 +14,22 @@ export async function polygonsRequest() {
   return result.data.points;
 }
 
-export async function polygonsDownload() {
+export async function polygonsDownload(polygon) {
   try {
     const token = getToken();
 
-    const response = await axios.get(
-      "http://localhost:3000/api/calculate/download",
+    const response = await axios.post(
+      "http://localhost:3000/api/calculate/download", { polygon },
       {
         responseType: "blob",
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: token,
         },
       }
     );
 
     const blob = await response.data;
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "data.zip");
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
+    downloadFromBlob(blob, "data.zip")
   } catch (error) {
     console.error(error);
     alert("При загрузке файлов произошла ошибка");

@@ -6,8 +6,7 @@ export default function FileUpload({
   downloadKey,
   onFileLoad,
   onFileSave,
-  errorHandler,
-  messageHandler
+  messageHandler,
 }) {
   const [fileKey, setFileKey] = useState(Date.now());
   const [geotiffFile, setGeotiffFile] = useState();
@@ -39,21 +38,11 @@ export default function FileUpload({
       })
       .then((response) => {
         console.log(response);
-        if(messageHandler){
-          messageHandler("Сохранение завершено")
-        }
-        if(errorHandler){
-          errorHandler()
-        }
+        messageHandler({message: "Сохранение завершено", color: "green"})
         onFileSave();
       })
       .catch((error) => {
-        if(errorHandler){
-          if(messageHandler){
-            messageHandler()
-          }
-          errorHandler(error.response.data.message)
-        }
+        messageHandler({message: error.response.data.message, color: "red"})
       });
   }
 

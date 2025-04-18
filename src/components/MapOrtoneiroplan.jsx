@@ -4,41 +4,67 @@ import {
   TileLayer,
   ImageOverlay,
   FeatureGroup,
-  Polygon,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { EditControl } from "react-leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import L from "leaflet";
-import { polygonsRequest, polygonsDownload } from "../utils/polygonsRequest";
+import { generateOrtoneiroplan, downloadOrtoneiroplan } from "../utils/generateNeiroplan";
 import loadGeoTiff from "../utils/loadGeoTiff";
 
-function MapComponent({ geotiffFile }) {
-  const [imageUrl, setImageUrl] = useState();
-  const [imageBounds, setImageBounds] = useState([
-    [0, 0],
-    [0, 0],
-  ]);
+export default function MapOrtoneiroplan({ geotiffFile }) {
+  const mapRef = useRef(null);
+  const editControlRef = useRef(null);
+
   const [loading, setLoading] = useState(false);
   const [mapVisible, setMapVisible] = useState(true);
   const [substrateVisible, setSubstrateVisible] = useState(true);
   const [drawingPolygonCoords, setDrawingPolygonCoords] = useState([]);
   const [polygonInstance, setPolygonInstance] = useState();
-  const [polygonsCoords, setPolygonsCoords] = useState([]);
-  const [polygonsVisible, setPolygonsVisible] = useState(true);
 
-  const mapRef = useRef();
-  const editControlRef = useRef();
+  const [imageUrl, setImageUrl] = useState();
+  const [imageBounds, setImageBounds] = useState([
+    [0, 0],
+    [0, 0],
+  ]);
+
+  const [ortoneiroplanVisible, setOrtoneiroplanVisible] = useState(true);
+  const [ortoneiroplanFile, setOrtoneiroplanFile] = useState();
+  const [ortoneiroplanUrl, setOrtoneiroplanUrl] = useState();
+  const [ortoneiroplanBounds, setOrtoneiroplanBounds] = useState([
+    [0, 0],
+    [0, 0],
+  ]);
 
   useEffect(() => {
     if (geotiffFile && mapRef.current) {
       setLoading(true);
-      loadGeoTiff(geotiffFile, setImageUrl, setImageBounds, setLoading, mapRef.current);
+      loadGeoTiff(
+        geotiffFile,
+        setImageUrl,
+        setImageBounds,
+        setLoading,
+        mapRef.current
+      );
     } else {
       setImageUrl(null);
     }
   }, [geotiffFile]);
 
+  useEffect(() => {
+    if (ortoneiroplanFile) {
+      setLoading(true);
+      loadGeoTiff(
+        ortoneiroplanFile,
+        setOrtoneiroplanUrl,
+        setOrtoneiroplanBounds,
+        setLoading,
+        mapRef.current
+      );
+    } else {
+      setImageUrl(null);
+    }
+  }, [ortoneiroplanFile]);
 
   const _onCreate = (e) => {
     if (e.layerType === "polygon") {
@@ -85,22 +111,23 @@ function MapComponent({ geotiffFile }) {
     }
   };
 
-  const handleGetCoordinates = async () => {
-    setPolygonsCoords(await polygonsRequest(drawingPolygonCoords));
-  };
+  async function generateOrtoneiroplanHandler() {
+    if (drawingPolygonCoords.length < 3) {
+      return;
+    }
 
-  const convertedPoints = polygonsCoords.map((polygon) => {
-    return polygon.map((coord) => {
-      if (coord[0] > 180 || coord[0] < -180) {
-        return [coord[1], coord[0]];
-      } else {
-        return [coord[0], coord[1]];
-      }
-    });
-  });
+    const neiroplan = await generateOrtoneiroplan(drawingPolygonCoords);
+    if (neiroplan) {
+      setOrtoneiroplanFile(neiroplan);
+    }
+  }
 
-  function handleDownloa() {
-    polygonsDownload(drawingPolygonCoords);
+  function downloadOrtoneiroplanHandler() {
+    if (drawingPolygonCoords.length < 3) {
+      return;
+    }
+
+    downloadOrtoneiroplan(drawingPolygonCoords)
   }
 
   return (
@@ -115,23 +142,16 @@ function MapComponent({ geotiffFile }) {
         {mapVisible ? "Скрыть карту" : "Показать карту"}
       </button>
 
-      <button onClick={handleGetCoordinates} style={drawingPolygonCoords.length > 0 ? {} : { display: "none" }}>Расчитать</button>
-
       <button
-        onClick={() => {
-          setPolygonsVisible(!polygonsVisible);
-        }}
-        style={polygonsCoords.length > 0 ? {} : { display: "none" }}
+        onClick={generateOrtoneiroplanHandler}
+        style={drawingPolygonCoords.length > 0 ? {} : { display: "none" }}
       >
-        {polygonsVisible ? "Скрыть полигоны" : "Показать полигоны"}
+        Сгенерировать
       </button>
 
-      <button
-        onClick={handleDownloa}
-        style={polygonsCoords.length > 0 ? {} : { display: "none" }}
-      >
-        Скачать полигоны
-      </button>
+      <button onClick={()=> {setOrtoneiroplanVisible(!ortoneiroplanVisible)}} style={ortoneiroplanUrl ? {} : { display: "none" }}>{ ortoneiroplanVisible ? "Скрыть ортонейроплан" : "Показать ортонейроплан"}</button>
+
+      <button onClick={downloadOrtoneiroplanHandler} style={ortoneiroplanUrl ? {} : { display: "none" }}> Скачать ортонейроплан </button>
 
       <button
         onClick={() => {
@@ -165,20 +185,22 @@ function MapComponent({ geotiffFile }) {
             ref={editControlRef}
           />
         </FeatureGroup>
+
         {mapVisible && (
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
         )}
-        {imageUrl && substrateVisible && <ImageOverlay url={imageUrl} bounds={imageBounds} />}
-        {polygonsVisible &&
-          convertedPoints.map((polygon, index) => (
-            <Polygon key={index} positions={polygon} color="blue" />
-          ))}
+
+        {imageUrl && substrateVisible && (
+          <ImageOverlay url={imageUrl} bounds={imageBounds} />
+        )}
+
+        {ortoneiroplanUrl && ortoneiroplanVisible && (
+          <ImageOverlay url={ortoneiroplanUrl} bounds={ortoneiroplanBounds} />
+        )}
       </MapContainer>
     </div>
   );
 }
-
-export default MapComponent;

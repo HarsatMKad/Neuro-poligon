@@ -17,8 +17,11 @@ export default function Header({ token }) {
           <Link to="/">
             <button>Главная</button>
           </Link>
-          <Link to="/work">
-            <button>Рабочий стол</button>
+          <Link to="/polygonsGenerator">
+            <button>Генерация полигонов</button>
+          </Link>
+          <Link to="/ortoneiroplan">
+            <button>Создание ортонейроплана</button>
           </Link>
         </nav>
 

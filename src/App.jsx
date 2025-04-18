@@ -12,7 +12,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/work" element={<WorkPage />} />
+        <Route path="/polygonsGenerator" element={<WorkPage/>} />
+        <Route path="/ortoneiroplan" element={<WorkPage ortophotoplan={true}/>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegistrationPage />} />
         <Route path="/profile" element={<ProfilePage />} />

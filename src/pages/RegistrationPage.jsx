@@ -8,8 +8,7 @@ export default function RegistrationPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [responseMessage, setResponseMessage] = useState({message: "", color: "green"})
 
   const navigate = useNavigate();
 
@@ -17,12 +16,12 @@ export default function RegistrationPage() {
     e.preventDefault();
 
     if (!username || !email || !password || !confirmPassword) {
-      setError("Пожалуйста, заполните все поля.");
+      setResponseMessage({message: "Пожалуйста, заполните все поля.", color: "red"})
       return;
     }
 
     if (confirmPassword != password) {
-      setError("Пароли не совпадают.");
+      setResponseMessage({message: "Пароли не совпадают.", color: "red"})
       return;
     }
 
@@ -38,16 +37,14 @@ export default function RegistrationPage() {
 
       saveToken(response.data.token);
 
-      setSuccessMessage("Регистрация прошла успешно!");
-      setError("");
+      setResponseMessage({message: "Регистрация прошла успешно!", color: "greed"})
       setUsername("");
       setEmail("");
       setPassword("");
 
       navigate("/profile");
     } catch (err) {
-      setError(err.response?.data?.message || "Ошибка при регистрации.");
-      setSuccessMessage("");
+      setResponseMessage({message: err.response?.data?.message || "Ошибка при регистрации.", color: "red"})
     }
   };
 
@@ -86,10 +83,7 @@ export default function RegistrationPage() {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
 
-        {error && <div style={{ color: "red" }}>{error}</div>}
-        {successMessage && (
-          <div style={{ color: "green" }}>{successMessage}</div>
-        )}
+        {responseMessage && <div style={{ color: responseMessage.color }}>{responseMessage.message}</div>}
 
         <button type="submit">Зарегистрироваться</button>
       </form>

@@ -1,19 +1,19 @@
 import Header from "../components/Header";
 import MapComponent from "../components/MapComponent";
+import MapOrtoneiroplan from "../components/MapOrtoneiroplan";
 import FileUpload from "../components/TifUpload";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { getToken } from "../utils/tokenStorageController";
 
-export default function WorkPage() {
+export default function WorkPage({ ortophotoplan }) {
   const [geotiffFile, setGeotiffFile] = useState(null);
   const [substrates, setSubstrates] = useState([]);
   const [obtainingFileMethod, setObtainingFileMethod] = useState();
   const token = getToken();
   const substratesInputRef = useRef();
   const [fatalError, setFatalError] = useState();
-  const [errorResponse, setErrorResponse] = useState();
-  const [messageResponse, setMessageResponse] = useState();
+  const [responseMessage, setResponseMessage] = useState({message: "", color: "green"})
 
   const handleFileLoad = (file) => {
     setGeotiffFile(file);
@@ -39,7 +39,10 @@ export default function WorkPage() {
 
   useEffect(() => {
     getSubstrates(token);
-  }, [token]);
+    setGeotiffFile(null);
+    setObtainingFileMethod(null)
+    substratesInputRef.current.value = ""
+  }, [token, ortophotoplan]);
 
   async function changeSubstrates() {
     setObtainingFileMethod("selected");
@@ -56,14 +59,14 @@ export default function WorkPage() {
         .get(`http://localhost:3000/api/substrates/${selectedId}`, {
           responseType: "blob",
           headers: {
-            "Content-Type": "multipart/form-data",
             Authorization: token,
           },
         })
         .catch((error) => {
-          setMessageResponse();
-          setErrorResponse(error.response.data.message)
+          setResponseMessage({message: error.response.data.message, color: "red"})
         });
+
+      console.log(response);
 
       const blob = response.data;
       const substratesFile = new File([blob], "tifFileName", {
@@ -91,15 +94,13 @@ export default function WorkPage() {
           },
         })
         .then((response) => {
-          setMessageResponse(response.data.message)
-          setErrorResponse()
+          setResponseMessage({message: response.data.message, color: "green"});
           setGeotiffFile(null);
           getSubstrates();
           substratesInputRef.current.value = "";
         })
         .catch((error) => {
-          setErrorResponse(error.response.data.message)
-          setMessageResponse()
+          setResponseMessage({message: error.response.data.message, color: "red"});
         });
     } catch (error) {
       console.error("Ошибка при загрузке GeoTIFF:", error);
@@ -109,8 +110,9 @@ export default function WorkPage() {
   return (
     <div>
       <Header token={token} />
-      {errorResponse && <div style={{ color: "red" }}>{errorResponse}</div>}
-      {messageResponse && <div style={{ color: "green" }}>{messageResponse}</div>}
+      {responseMessage && (
+        <div style={{ color: responseMessage.color }}>{responseMessage.message}</div>
+      )}
       {fatalError && <div style={{ color: "red" }}>{fatalError}</div>}
       <div style={fatalError ? { display: "none" } : {}}>
         <FileUpload
@@ -118,8 +120,7 @@ export default function WorkPage() {
           downloadKey={obtainingFileMethod == "download" ? true : false}
           onFileLoad={handleFileLoad}
           onFileSave={getSubstrates}
-          errorHandler={setErrorResponse}
-          messageHandler={setMessageResponse}
+          messageHandler={setResponseMessage}
         />
         <select ref={substratesInputRef} onChange={changeSubstrates}>
           <option value="">Сохраненные файлы</option>
@@ -139,7 +140,11 @@ export default function WorkPage() {
         >
           Удалить файл
         </button>
-        <MapComponent geotiffFile={geotiffFile} />
+        {ortophotoplan ? (
+          <MapOrtoneiroplan geotiffFile={geotiffFile} />
+        ) : (
+          <MapComponent geotiffFile={geotiffFile} />
+        )}
       </div>
     </div>
   );
