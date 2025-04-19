@@ -63,7 +63,7 @@ export default function LoginPage() {
       <div className="account_recovery_button">Забыли пароль ?</div>
       <div className="account_recovery_button">
         Нет аккаунта ?
-        <Link to={"/register"}>
+        <Link to={"/register"} style={{ textDecoration: 'none', color: 'inherit' }}>
           <span> Создать</span>
         </Link>
       </div>

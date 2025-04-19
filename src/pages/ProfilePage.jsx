@@ -6,12 +6,17 @@ import { getToken } from "../utils/tokenStorageController";
 export default function ProfilePage() {
   const token = getToken();
 
-  const [responseMessage, setResponseMessage] = useState({message: "", color: "green"})
+  const [responseMessage, setResponseMessage] = useState({
+    message: "",
+    color: "green",
+  });
 
   return (
     <div>
       <Header token={token} />
-      <div style={{ color: responseMessage.color }}>{responseMessage.message}</div>
+      <div style={{ color: responseMessage.color }}>
+        {responseMessage.message}
+      </div>
       <ProfileInfo responseMessageHandler={setResponseMessage} token={token} />
     </div>
   );

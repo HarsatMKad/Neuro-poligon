@@ -89,7 +89,7 @@ export default function RegistrationPage() {
       </form>
       <div className="account_recovery_button">
         Уже есть аккаунт?
-        <Link to={"/login"}>
+        <Link to={"/login"} style={{ textDecoration: 'none', color: 'inherit' }}>
           <span> Войти</span>
         </Link>
       </div>
