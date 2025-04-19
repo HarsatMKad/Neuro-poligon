@@ -147,6 +147,7 @@ function MapComponent({ geotiffFile }) {
         zoom={10}
         ref={mapRef}
         className="map_component"
+        attributionControl={false}
       >
         <FeatureGroup>
           <EditControl

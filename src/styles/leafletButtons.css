@@ -1,0 +1,45 @@
+.leaflet-touch .leaflet-control-zoom-display {
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
+  line-height: 30px;
+}
+
+.leaflet-touch .leaflet-bar a,
+.leaflet-touch .leaflet-toolbar-0 > li > a {
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  line-height: 45px;
+  background-size: 314px 30px;
+}
+.leaflet-touch .leaflet-draw-toolbar.leaflet-bar a {
+  background-position-y: 6px;
+}
+.leaflet-touch .leaflet-draw-actions a,
+.leaflet-touch
+  .leaflet-control-toolbar
+  .leaflet-toolbar-1
+  > li
+  > .leaflet-toolbar-icon {
+  font-size: 20px;
+  line-height: 44px;
+  height: 44px;
+}
+.leaflet-touch .leaflet-draw-actions,
+.leaflet-touch .leaflet-toolbar-1 {
+  left: 45px;
+}
+
+.leaflet-right .leaflet-toolbar-1 {
+  left: auto !important;
+  right: 30px;
+}
+.leaflet-right .leaflet-toolbar-1 li:first-child > .leaflet-toolbar-icon {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+.leaflet-right .leaflet-toolbar-1 li:last-child > .leaflet-toolbar-icon {
+  border-top-right-radius: unset;
+  border-bottom-right-radius: unset;
+}

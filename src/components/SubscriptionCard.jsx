@@ -7,6 +7,7 @@ export default function SubscriptionCard({
   duration,
   price,
   isBuy = false,
+  buyButtonHandle,
 }) {
   function convertSupDate(numberDate) {
     if (!numberDate) {
@@ -41,7 +42,11 @@ export default function SubscriptionCard({
       <span>
         {duration && "Время действия: " + convertDuration(duration) + " дней"}
       </span>
-      <span>{price && "Цена: " + price + "р"}</span>
+      {price && <hr/>}
+      <div className="button_section">
+        <span>{price && price + " р / мес."}</span>
+        {buyButtonHandle && <button onClick={()=>{buyButtonHandle()}}>Купить</button>}
+      </div>
     </div>
   );
 }

@@ -15,7 +15,6 @@ $second_color: #FFBD06
     src: url('../fonts/actay-regular.eot') 
     src: url('../fonts/actay-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/actay-regular.woff2') format('woff2'), url('../fonts/actay-regular.woff') format('woff'), url('../fonts/actay-regular.ttf') format('truetype'), url('../fonts/actay-regular.svg#actay-regular') format('svg'); /* Chrome < 4, Legacy iOS */
 
-
 .map_component
     margin: 10px
     height: 75vh
@@ -23,7 +22,7 @@ $second_color: #FFBD06
 
 body
     margin: 0px
-    min-width: 650px
+    min-width: 750px
     background: $main_background_color
 
 button, select
@@ -207,17 +206,19 @@ header
     display: flex
     flex-direction: column
     padding: 16px
+
     p
         font-size: 32px
         font:
             family: "ActayWide-Bold"
         color: $second_color
+
     .card
         margin-bottom: 8px
         padding: 16px
 
         .button_section
-            padding: 16px
+            padding: 16px 32px 16px 32px
             display: flex
             justify-content: space-between
 

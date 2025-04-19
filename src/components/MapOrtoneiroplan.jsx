@@ -167,6 +167,7 @@ export default function MapOrtoneiroplan({ geotiffFile }) {
         zoom={10}
         ref={mapRef}
         className="map_component"
+        attributionControl={false}
       >
         <FeatureGroup>
           <EditControl

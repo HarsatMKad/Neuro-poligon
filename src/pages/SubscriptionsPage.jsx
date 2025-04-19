@@ -69,18 +69,8 @@ export default function SubscriptionsPage() {
               duration={substrate.duration}
               price={substrate.price}
               isBuy={substrate._id == userSub}
+              buyButtonHandle={()=> {updateSubHandler(substrate._id)}}
             />
-            <div className="button_section">
-              <button
-                disabled={substrate._id == userSub}
-                onClick={() => {
-                  updateSubHandler(substrate._id);
-                }}
-              >
-                Купить
-              </button>
-              <button>Узнать больше</button>
-            </div>
           </div>
         ))}
       </div>
