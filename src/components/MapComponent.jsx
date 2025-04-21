@@ -33,12 +33,17 @@ function MapComponent({ geotiffFile }) {
   useEffect(() => {
     if (geotiffFile && mapRef.current) {
       setLoading(true);
-      loadGeoTiff(geotiffFile, setImageUrl, setImageBounds, setLoading, mapRef.current);
+      loadGeoTiff(
+        geotiffFile,
+        setImageUrl,
+        setImageBounds,
+        setLoading,
+        mapRef.current
+      );
     } else {
       setImageUrl(null);
     }
   }, [geotiffFile]);
-
 
   const _onCreate = (e) => {
     if (e.layerType === "polygon") {
@@ -86,7 +91,9 @@ function MapComponent({ geotiffFile }) {
   };
 
   const handleGetCoordinates = async () => {
+    setLoading(true);
     setPolygonsCoords(await polygonsRequest(drawingPolygonCoords));
+    setLoading(false);
   };
 
   const convertedPoints = polygonsCoords.map((polygon) => {
@@ -104,43 +111,56 @@ function MapComponent({ geotiffFile }) {
   }
 
   return (
-    <div>
+    <div className="map_container">
+      <div className="control">
+        <div>
+          <button
+            onClick={() => {
+              setMapVisible(!mapVisible);
+            }}
+          >
+            {mapVisible ? "Скрыть карту" : "Показать карту"}
+          </button>
+
+          <button
+            onClick={() => {
+              setSubstrateVisible(!substrateVisible);
+            }}
+            style={imageUrl ? {} : { display: "none" }}
+          >
+            {substrateVisible ? "Скрыть подложку" : "Показать подложку"}
+          </button>
+        </div>
+
+        <div>
+          <button
+            onClick={handleGetCoordinates}
+            style={drawingPolygonCoords.length > 0 ? {} : { display: "none" }}
+          >
+            Расчитать
+          </button>
+
+          <button
+            onClick={() => {
+              setPolygonsVisible(!polygonsVisible);
+            }}
+            style={polygonsCoords.length > 0 ? {} : { display: "none" }}
+          >
+            {polygonsVisible ? "Скрыть полигоны" : "Показать полигоны"}
+          </button>
+
+          <button
+            onClick={handleDownloa}
+            style={polygonsCoords.length > 0 ? {} : { display: "none" }}
+          >
+            Скачать полигоны
+          </button>
+        </div>
+      </div>
+
       {loading && <p className="load_massage">Загрузка...</p>}
-
-      <button
-        onClick={() => {
-          setMapVisible(!mapVisible);
-        }}
-      >
-        {mapVisible ? "Скрыть карту" : "Показать карту"}
-      </button>
-
-      <button onClick={handleGetCoordinates} style={drawingPolygonCoords.length > 0 ? {} : { display: "none" }}>Расчитать</button>
-
-      <button
-        onClick={() => {
-          setPolygonsVisible(!polygonsVisible);
-        }}
-        style={polygonsCoords.length > 0 ? {} : { display: "none" }}
-      >
-        {polygonsVisible ? "Скрыть полигоны" : "Показать полигоны"}
-      </button>
-
-      <button
-        onClick={handleDownloa}
-        style={polygonsCoords.length > 0 ? {} : { display: "none" }}
-      >
-        Скачать полигоны
-      </button>
-
-      <button
-        onClick={() => {
-          setSubstrateVisible(!substrateVisible);
-        }}
-        style={imageUrl ? {} : { display: "none" }}
-      >
-        {substrateVisible ? "Скрыть подложку" : "Показать подложку"}
-      </button>
+      
+      <p className="projection">Проекция: EPSG:4326 wgs84</p>
 
       <MapContainer
         center={[55.37, 86.06]}
@@ -172,7 +192,9 @@ function MapComponent({ geotiffFile }) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
         )}
-        {imageUrl && substrateVisible && <ImageOverlay url={imageUrl} bounds={imageBounds} />}
+        {imageUrl && substrateVisible && (
+          <ImageOverlay url={imageUrl} bounds={imageBounds} />
+        )}
         {polygonsVisible &&
           convertedPoints.map((polygon, index) => (
             <Polygon key={index} positions={polygon} color="blue" />

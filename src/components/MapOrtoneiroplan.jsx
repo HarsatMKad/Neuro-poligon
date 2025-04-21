@@ -9,7 +9,10 @@ import "leaflet/dist/leaflet.css";
 import { EditControl } from "react-leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import L from "leaflet";
-import { generateOrtoneiroplan, downloadOrtoneiroplan } from "../utils/generateNeiroplan";
+import {
+  generateOrtoneiroplan,
+  downloadOrtoneiroplan,
+} from "../utils/generateNeiroplan";
 import loadGeoTiff from "../utils/loadGeoTiff";
 
 export default function MapOrtoneiroplan({ geotiffFile }) {
@@ -127,40 +130,63 @@ export default function MapOrtoneiroplan({ geotiffFile }) {
       return;
     }
 
-    downloadOrtoneiroplan(drawingPolygonCoords)
+    downloadOrtoneiroplan(drawingPolygonCoords);
   }
 
   return (
-    <div>
+    <div className="map_container">
+      <div className="control">
+        <div>
+          <button
+            onClick={() => {
+              setMapVisible(!mapVisible);
+            }}
+          >
+            {mapVisible ? "Скрыть карту" : "Показать карту"}
+          </button>
+
+          <button
+            onClick={() => {
+              setSubstrateVisible(!substrateVisible);
+            }}
+            style={imageUrl ? {} : { display: "none" }}
+          >
+            {substrateVisible ? "Скрыть подложку" : "Показать подложку"}
+          </button>
+        </div>
+
+        <div>
+          <button
+            onClick={generateOrtoneiroplanHandler}
+            style={drawingPolygonCoords.length > 0 ? {} : { display: "none" }}
+          >
+            Сгенерировать
+          </button>
+
+          <button
+            onClick={() => {
+              setOrtoneiroplanVisible(!ortoneiroplanVisible);
+            }}
+            style={ortoneiroplanUrl ? {} : { display: "none" }}
+          >
+            {ortoneiroplanVisible
+              ? "Скрыть ортонейроплан"
+              : "Показать ортонейроплан"}
+          </button>
+
+          <button
+            onClick={downloadOrtoneiroplanHandler}
+            style={ortoneiroplanUrl ? {} : { display: "none" }}
+          >
+            {" "}
+            Скачать ортонейроплан{" "}
+          </button>
+        </div>
+      </div>
+
       {loading && <p className="load_massage">Загрузка...</p>}
 
-      <button
-        onClick={() => {
-          setMapVisible(!mapVisible);
-        }}
-      >
-        {mapVisible ? "Скрыть карту" : "Показать карту"}
-      </button>
-
-      <button
-        onClick={generateOrtoneiroplanHandler}
-        style={drawingPolygonCoords.length > 0 ? {} : { display: "none" }}
-      >
-        Сгенерировать
-      </button>
-
-      <button onClick={()=> {setOrtoneiroplanVisible(!ortoneiroplanVisible)}} style={ortoneiroplanUrl ? {} : { display: "none" }}>{ ortoneiroplanVisible ? "Скрыть ортонейроплан" : "Показать ортонейроплан"}</button>
-
-      <button onClick={downloadOrtoneiroplanHandler} style={ortoneiroplanUrl ? {} : { display: "none" }}> Скачать ортонейроплан </button>
-
-      <button
-        onClick={() => {
-          setSubstrateVisible(!substrateVisible);
-        }}
-        style={imageUrl ? {} : { display: "none" }}
-      >
-        {substrateVisible ? "Скрыть подложку" : "Показать подложку"}
-      </button>
+      <p className="projection">Проекция: EPSG:4326 wgs84</p>
 
       <MapContainer
         center={[55.37, 86.06]}
